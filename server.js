@@ -96,6 +96,11 @@ app.get("/api/houses/", (req, res)=>{
     res.send(houses);
 });
 
+app.get("/api/houses/:id", (req, res)=>{
+    const house = houses.find((house)=>house._id === parseInt(req.params.id));
+    res.send(house);
+});
+
 
 app.listen(3001, () => {
     console.log("Server is up and running");
