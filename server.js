@@ -129,6 +129,52 @@ app.post("/api/houses", upload.single("img"), (req,res)=>{
     res.status(200).send(house);
 });
 
+app.put("/api/houses/:id", upload.single("img"), async(req, res)=>{
+    //console.log(`You are trying to edit ${req.params.id}`);
+    //console.log(req.body);
+    const isValidUpdate = validateHouse(req.body);
+
+    if(isValidUpdate.error){
+        console.log("Invalid Info");
+        res.status(400).send(isValidUpdate.error.details[0].message);
+        return;
+    }
+
+    const fieldsToUpdate = {
+        name : req.body.name,
+        description : req.body.description,
+        size : req.body.size,
+        bathrooms : req.body.bathrooms,
+        bedrooms : req.body.bedrooms
+    }
+    
+    if(req.file){
+        fieldsToUpdate.main_image = req.file.filename;
+    }
+
+    const success = await House.updateOne({_id:req.params.id}, fieldsToUpdate);
+
+    if(!success){
+        res.status(404).send("We couldn't locate the ouse to edit");
+        return;
+    }
+
+    const house = await House.findById(req.params.id);
+    res.status(200).send(house);
+
+});
+
+app.delete("/api/houses/:id", async(req,res)=>{
+    const house = await House.findByIdAndDelete(req.params.id);
+
+    if(!house){
+        res.status(404).send("We couldn't locate the house to delete");
+        return;
+    }
+
+    res.status(200).send(house);
+});
+
 const validateHouse = (house) => {
     const schema = Joi.object({
         _id:Joi.allow(""),
