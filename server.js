@@ -101,6 +101,11 @@ app.put("/api/houses/:id", upload.single("img"), (req, res)=>{
 
     const house = houses.find((h)=>h._id===parseInt(req.params.id));
 
+     if(!house) {
+        res.status(404).send("The house you wanted to edit is unavailable");
+        return;
+    }
+
     const isValidUpdate = validateHouse(req.body);
 
     if(isValidUpdate.error){
@@ -135,6 +140,7 @@ app.delete("/api/houses/:id", (req,res)=>{
     houses.splice(index, 1);
     res.status(200).send(house);
 });
+
 const validateHouse = (house) => {
     const schema = Joi.object({
         _id:Joi.allow(""),
